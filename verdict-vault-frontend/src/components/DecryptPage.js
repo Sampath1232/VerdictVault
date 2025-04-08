@@ -56,43 +56,7 @@ const DecryptPage = () => {
     }
   };
 
-  const renderPreview = () => {
-    const ext = fileName.split('.').pop().toLowerCase();
-
-    if (!previewUrl) return null;
-
-    if (ext === 'pdf' || ext === 'txt') {
-      return (
-        <div className="ratio ratio-1x1" style={{ minHeight: '300px' }}>
-          <iframe
-            src={previewUrl}
-            title="File Preview"
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-              borderRadius: '8px',
-            }}
-            allowFullScreen
-          ></iframe>
-        </div>
-      );
-    } else if (['jpg', 'jpeg', 'png'].includes(ext)) {
-      return (
-        <div className="text-center">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="img-fluid rounded shadow"
-            style={{ maxHeight: '80vh', objectFit: 'contain' }}
-          />
-        </div>
-      );
-    } else {
-      return <p className="text-muted">Preview not supported for this file type.</p>;
-    }
-  };
-
+ 
   return (
     <div className="container mt-5">
       <div className="row">
@@ -123,12 +87,6 @@ const DecryptPage = () => {
               </div>
             )}
 
-            {previewUrl && (
-              <div className="mt-4">
-                <h5>📄 File Preview:</h5>
-                {renderPreview()}
-              </div>
-            )}
           </div>
         </div>
       </div>

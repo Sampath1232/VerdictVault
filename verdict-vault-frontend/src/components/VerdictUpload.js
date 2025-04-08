@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { uploadToIPFS } from '../utils/ipfs';
+import { initContract } from '../utils/contract';
 import CryptoJS from 'crypto-js';
 import { QRCodeSVG } from 'qrcode.react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'animate.css';
+import './VerdictUpload.css';
 
 const VerdictUpload = () => {
   const [file, setFile] = useState(null);
@@ -13,12 +15,17 @@ const VerdictUpload = () => {
   const [downloadKey, setDownloadKey] = useState('');
   const [fileName, setFileName] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
+  const [caseID, setCaseID] = useState('');
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('');
+  const [txHash, setTxHash] = useState('');
+  const [verificationResult, setVerificationResult] = useState('');
 
   const handleUpload = async (e) => {
     e.preventDefault();
 
-    if (!file || !secretKey) {
-      setStatus('❗ Please select a file and enter a secret key');
+    if (!file || !secretKey || !caseID || !title || !category) {
+      setStatus('❗ All fields are required');
       return;
     }
 
@@ -35,13 +42,22 @@ const VerdictUpload = () => {
         const encryptedCid = await uploadToIPFS(blob);
         setCid(encryptedCid);
         setFileName(file.name);
-        setStatus('✅ File encrypted and uploaded to IPFS');
+
+        setStatus('⛓️ Storing metadata on blockchain...');
+        const { contractInstance, signerAddress } = await initContract();
+
+        const tx = await contractInstance.methods
+          .storeVerdict(caseID, encryptedCid)
+          .send({ from: signerAddress });
+
+        setTxHash(tx.transactionHash);
+        setStatus('✅ File uploaded and stored successfully!');
       };
 
       reader.readAsArrayBuffer(file);
     } catch (err) {
       console.error('❌ Upload error:', err);
-      setStatus('❌ Upload failed');
+      setStatus('❌ Upload or blockchain storage failed');
     }
   };
 
@@ -89,26 +105,60 @@ const VerdictUpload = () => {
     }
   };
 
-  const renderPreview = () => {
-    const ext = fileName.split('.').pop().toLowerCase();
+  const handleVerify = async () => {
+    if (!caseID) {
+      setVerificationResult('❗ Enter a Case ID');
+      return;
+    }
 
-    if (previewUrl && ext === 'pdf') {
-      return <iframe src={previewUrl} width="100%" height="600px" title="PDF Preview" />;
-    } else if (previewUrl && ['jpg', 'jpeg', 'png'].includes(ext)) {
-      return <img src={previewUrl} alt="Preview" className="img-fluid" />;
-    } else if (previewUrl && ext === 'txt') {
-      return <iframe src={previewUrl} width="100%" height="300px" title="Text Preview" />;
-    } else {
-      return <p>No preview available for this file type.</p>;
+    try {
+      const { contractInstance } = await initContract();
+      const result = await contractInstance.methods.getVerdict(caseID).call();
+      setVerificationResult(`✅ Found: IPFS Hash - ${result.ipfsHash}, Uploader: ${result.uploader}`);
+    } catch (error) {
+      setVerificationResult('❌ No verdict found or blockchain error');
     }
   };
 
   return (
-    <div className="container mt-5 animate__animated animate__fadeIn">
-      <div className="card shadow-lg p-4">
-        <h2 className="text-center text-primary mb-3">🧾 Secure Verdict Vault</h2>
+    <div className="container animate__animated animate__fadeIn">
+      <div className="card shadow-lg">
+        <h2 className="text-center text-primary">🧾 Secure Verdict Vault</h2>
 
         <form onSubmit={handleUpload}>
+          <div className="mb-3">
+            <label className="form-label fw-bold">Case ID:</label>
+            <input
+              type="text"
+              className="form-control"
+              value={caseID}
+              onChange={(e) => setCaseID(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label fw-bold">Document Title:</label>
+            <input
+              type="text"
+              className="form-control"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label fw-bold">Category:</label>
+            <input
+              type="text"
+              className="form-control"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+            />
+          </div>
+
           <div className="mb-3">
             <label className="form-label fw-bold">Choose File:</label>
             <input
@@ -151,20 +201,35 @@ const VerdictUpload = () => {
           </button>
         </div>
 
-        {status && <div className="alert alert-info mt-3">{status}</div>}
+        <hr />
 
-        {cid && (
-          <div className="mt-3 text-center">
-            <p><strong>IPFS CID:</strong> {cid}</p>
-           <QRCodeSVG value={`http://192.168.1.122:3000/decrypt?cid=${cid}&fileName=${fileName}`} />
+        <div className="mt-3">
+          <label className="form-label fw-bold">Verify by Case ID:</label>
+          <div className="d-flex">
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Enter Case ID"
+              value={caseID}
+              onChange={(e) => setCaseID(e.target.value)}
+            />
+            <button className="btn btn-warning" onClick={handleVerify}>Verify</button>
+          </div>
+          {verificationResult && <div className="alert alert-info mt-2">{verificationResult}</div>}
+        </div>
 
+        {status && <div className="alert alert-success mt-3">{status}</div>}
+
+        {txHash && (
+          <div className="alert alert-success mt-2">
+            ✅ TX Hash: <code>{txHash}</code>
           </div>
         )}
 
-        {previewUrl && (
-          <div className="mt-4">
-            <h5>📄 File Preview:</h5>
-            {renderPreview()}
+        {cid && (
+          <div className="qr-container">
+            <label className="form-label fw-bold mb-2">Scan QR code to download file:</label>
+            <QRCodeSVG value={`http://192.168.1.122:3000/decrypt?cid=${cid}&fileName=${fileName}`} size={160} />
           </div>
         )}
       </div>
