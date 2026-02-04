@@ -134,6 +134,11 @@ npm install react-router-dom crypto-js qrcode.react bootstrap animate.css ipfs-h
 - Previews depend on browser support and file format
 
 ---
+## 🚀 Projects
+- **VerdictVault** – Blockchain-based secure legal document management using IPFS, encryption, and smart contracts  
+  👉 https://github.com/your-username/VerdictVault
+
+---
 
 ## 📧 Contact
 
