@@ -1,35 +1,63 @@
 .container {
   margin-top: 3rem;
+  max-width: 900px;
 }
 
+/* Card with glassmorphism effect */
 .card {
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
 }
 
 h2.text-center.text-primary {
   margin-bottom: 1.5rem;
   font-weight: bold;
+  font-size: 2rem;
+  background: linear-gradient(90deg, #007bff, #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .form-label.fw-bold {
   font-weight: 600;
   color: #343a40;
+  font-size: 0.95rem;
 }
 
 .btn {
   font-weight: 500;
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .btn-success {
-  background-color: #28a745;
-  border-color: #28a745;
+  background: linear-gradient(90deg, #28a745, #218838);
+  border: none;
+}
+
+.btn-success:hover {
+  background: linear-gradient(90deg, #218838, #28a745);
+  transform: scale(1.03);
 }
 
 .btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #0056b3, #007bff);
+  transform: scale(1.03);
 }
 
 .alert-info,
@@ -37,6 +65,7 @@ h2.text-center.text-primary {
   margin-top: 1rem;
   font-size: 0.95rem;
   font-weight: 500;
+  border-radius: 8px;
 }
 
 .mt-4.text-center .form-label {
@@ -50,22 +79,44 @@ h2.text-center.text-primary {
   flex-direction: column;
   align-items: center;
   margin-top: 1.5rem;
+  animation: fadeInUp 0.6s ease;
 }
 
 .qr-container svg {
   margin-top: 0.5rem;
   border: 1px solid #dee2e6;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 12px;
   background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
 }
 
-/* Optional animation tweaks */
-.animate__animated.animate__fadeIn {
-  animation-duration: 0.8s;
+.qr-container svg:hover {
+  transform: scale(1.05);
 }
 
-/* Responsive adjustments */
+/* Upload area with drag-and-drop look */
+.file-upload-area {
+  border: 2px dashed #007bff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.file-upload-area:hover {
+  border-color: #6610f2;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Keyframe animation for QR reveal */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive tweaks */
 @media (max-width: 576px) {
   .card {
     padding: 1.5rem;

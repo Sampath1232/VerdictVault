@@ -1,1 +1,14 @@
-Hello IPFS! 
+Hello IPFS!
+truffle init
+truffle compile
+ ganache-cli --port 7545
+truffle migrate --network development
+npm start
+
+Network Name: Ganache
+
+New RPC URL: http://127.0.0.1:7545
+
+Chain ID: 1337
+
+

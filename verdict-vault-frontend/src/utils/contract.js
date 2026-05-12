@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import VerdictVaultABI from '../abi/VerdictVault.json';
 
-const contractAddress = ' 0xc529253B063361C1b839Ef82911cEe4fa88a63ee'.trim(); // Replace with actual address
+const contractAddress = '0x37904E8Aa2bC57A931A1254F7cc582665ECA3248'.trim(); // Replace with actual address
 
 let signerAddress;
 let contractInstance;
